@@ -1,13 +1,15 @@
 package com.example.terabackendtest.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.terabackendtest.domain.CpuUsage;
+import com.example.terabackendtest.dto.CpuDto;
 import com.example.terabackendtest.repository.CpuUsageRepository;
-import com.example.terabackendtest.util.CpuUsageCollector;
 
 @Service
 public class CpuUsageService {
@@ -25,5 +27,10 @@ public class CpuUsageService {
 	public void saveCpuUsage() {
 		final int cpuUsagePercent = cpuUsageCollector.usagePercent();
 		cpuUsageRepository.save(CpuUsage.of(cpuUsagePercent, LocalDateTime.now()));
+	}
+
+	@Transactional(readOnly = true)
+	public List<CpuDto> cpuUsageBetween(final LocalDateTime startTime, final LocalDateTime endTime) {
+		return cpuUsageRepository.findCpuUsageBetween(startTime, endTime);
 	}
 }
