@@ -34,7 +34,7 @@ import com.example.terabackendtest.repository.CpuUsageRepository;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @AutoConfigureMockMvc
 @SpringBootTest
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS, scripts = "classpath:afterTestRun.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:afterTestRun.sql")
 class CpuUsageControllerTest {
 
 	private static final String CPU_USAGE_ENDPOINT_URL = "/cpu-usages";
