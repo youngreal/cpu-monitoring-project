@@ -1,0 +1,2 @@
+### 분 단위 CPU 사용률 조회
+GET http://localhost:8080/cpu-usages?startTime=2024-05-17T22:20&endTime=2024-05-22T08:02
