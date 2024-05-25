@@ -33,16 +33,27 @@ public class CpuUsageService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CpuDto> cpuUsageBetween(final LocalDateTime startTime, final LocalDateTime endTime) {
-		return cpuUsageRepository.findCpuUsageBetween(startTime, endTime).stream()
+	public List<CpuDto> cpuUsagePerMinute(final LocalDateTime startTime, final LocalDateTime endTime) {
+		return cpuUsageRepository.findCpuUsagesPerMinute(startTime, endTime).stream()
 			.map(CpuDto::from)
 			.toList();
 	}
 
 	public List<CpuDto> cpuUsagePerHour(final LocalDate date) {
-		final LocalDateTime startTime = timeValidator.startTimeForCpuUsagePerHour(date);
+		// validation
+		timeValidator.validateDateRangeForPerHour(date);
 
-		return cpuUsageRepository.findCpuUsagesForDay(startTime, startTime.plusDays(1)).stream()
+		final LocalDateTime startTime = date.atStartOfDay();
+		return cpuUsageRepository.findCpuUsagesPerHour(startTime, startTime.plusDays(1)).stream()
+			.map(CpuDto::from)
+			.toList();
+	}
+
+	public List<CpuDto> cpuUsagePerDaily(final LocalDate startDate, final LocalDate endDate) {
+		// validation
+		timeValidator.validateDateRangeForPerDaily(startDate, endDate);
+
+		return cpuUsageRepository.findCpuUsagesPerDaily(startDate.atStartOfDay(), endDate.atStartOfDay()).stream()
 			.map(CpuDto::from)
 			.toList();
 	}

@@ -5,6 +5,7 @@ import static com.example.terabackendtest.domain.QCpuUsage.cpuUsage;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.terabackendtest.repository.dto.CpuDtoForPerDaily;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerHour;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerMinute;
 import com.querydsl.core.types.Projections;
@@ -18,7 +19,7 @@ public class CpuUsageRepositoryImpl implements CpuUsageRepositoryCustom {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public List<CpuDtoForPerMinute> findCpuUsageBetween(final LocalDateTime startTime, final LocalDateTime endTime) {
+	public List<CpuDtoForPerMinute> findCpuUsagesPerMinute(final LocalDateTime startTime, final LocalDateTime endTime) {
 		return jpaQueryFactory.select(Projections.constructor(CpuDtoForPerMinute.class,
 				cpuUsage.usagePercent, cpuUsage.timestamp))
 			.from(cpuUsage)
@@ -27,13 +28,24 @@ public class CpuUsageRepositoryImpl implements CpuUsageRepositoryCustom {
 	}
 
 	@Override
-	public List<CpuDtoForPerHour> findCpuUsagesForDay(final LocalDateTime startDate, final LocalDateTime endDate) {
+	public List<CpuDtoForPerHour> findCpuUsagesPerHour(final LocalDateTime startDate, final LocalDateTime endDate) {
 		return jpaQueryFactory.select(Projections.constructor(CpuDtoForPerHour.class,
 				cpuUsage.usagePercent.min(), cpuUsage.usagePercent.max(), cpuUsage.usagePercent.avg(),
 				cpuUsage.timestamp.hour()))
 			.from(cpuUsage)
 			.where(cpuUsage.timestamp.between(startDate, endDate))
 			.groupBy(cpuUsage.timestamp.hour())
+			.fetch();
+	}
+
+	@Override
+	public List<CpuDtoForPerDaily> findCpuUsagesPerDaily(final LocalDateTime startDate, final LocalDateTime endDate) {
+		return jpaQueryFactory.select(Projections.constructor(CpuDtoForPerDaily.class,
+				cpuUsage.usagePercent.min(), cpuUsage.usagePercent.max(), cpuUsage.usagePercent.avg(),
+				cpuUsage.timestamp.dayOfMonth()))
+			.from(cpuUsage)
+			.where(cpuUsage.timestamp.between(startDate, endDate))
+			.groupBy(cpuUsage.timestamp.dayOfMonth())
 			.fetch();
 	}
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.terabackendtest.controller.dto.CpuUsagePerDailyResponse;
 import com.example.terabackendtest.controller.dto.CpuUsagePerHourResponse;
 import com.example.terabackendtest.controller.validation.CheckEndTime;
 import com.example.terabackendtest.controller.validation.CheckStartTime;
@@ -37,13 +38,23 @@ public class CpuUsageController {
 		if (startTime.isAfter(endTime)) {
 			throw new StartTimeAfterEndTimeException();
 		}
-		return CpuUsageResponse.from(cpuUsageService.cpuUsageBetween(startTime, endTime));
+		return CpuUsageResponse.from(cpuUsageService.cpuUsagePerMinute(startTime, endTime));
 	}
 
 	@GetMapping("/cpu-usages/hourly")
-	public List<CpuUsagePerHourResponse> cpuUsages(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
+	public List<CpuUsagePerHourResponse> cpuUsagesForHourly(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
 		return cpuUsageService.cpuUsagePerHour(date).stream()
 			.map(CpuUsagePerHourResponse::from)
+			.toList();
+	}
+
+	@GetMapping("/cpu-usages/daily")
+	public List<CpuUsagePerDailyResponse> cpuUsagesForDaily(
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate startDate,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate endDate
+	) {
+		return cpuUsageService.cpuUsagePerDaily(startDate, endDate).stream()
+			.map(CpuUsagePerDailyResponse::from)
 			.toList();
 	}
 }
