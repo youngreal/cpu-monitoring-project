@@ -23,6 +23,7 @@ import com.example.terabackendtest.dto.CpuDto;
 import com.example.terabackendtest.repository.CpuUsageRepository;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerDaily;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerHour;
+import com.example.terabackendtest.repository.dto.CpuDtoForPerMinute;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -57,12 +58,21 @@ class CpuUsageServiceTest {
 		// given
 		final LocalDateTime startTime = LocalDateTime.of(2024, 5, 18, 1, 0);
 		final LocalDateTime endTime = LocalDateTime.of(2024, 5, 22, 8, 0);
+		final List<CpuDtoForPerMinute> mockCpuUsages = List.of(
+			CpuDtoForPerMinute.of(10, LocalDateTime.now()),
+			CpuDtoForPerMinute.of(40, LocalDateTime.now())
+		);
+		final List<CpuDto> expectedDtos = mockCpuUsages.stream()
+			.map(CpuDto::from)
+			.toList();
+		given(cpuUsageRepository.findCpuUsagesPerMinute(startTime, endTime)).willReturn(mockCpuUsages);
 
 		//when
-		sut.cpuUsagePerMinute(startTime, endTime);
+		final List<CpuDto> result = sut.cpuUsagePerMinute(startTime, endTime);
 
 		// then
 		then(cpuUsageRepository).should().findCpuUsagesPerMinute(startTime, endTime);
+		assertThat(result).usingRecursiveComparison().isEqualTo(expectedDtos);
 	}
 
 	@Test
