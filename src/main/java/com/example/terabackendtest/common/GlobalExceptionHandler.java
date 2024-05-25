@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.example.terabackendtest.exception.CpuUsageCollectFailException;
+import com.example.terabackendtest.exception.InvalidDateRangeException;
 import com.example.terabackendtest.exception.StartTimeAfterEndTimeException;
 
 import jakarta.validation.ConstraintViolationException;
@@ -39,6 +40,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> cpuUsageCollectFailException(CpuUsageCollectFailException e) {
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(e.getMessage());
+	}
+
+	@ExceptionHandler(InvalidDateRangeException.class)
+	public ResponseEntity<String> invalidDateRangeException(InvalidDateRangeException e) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
 			.body(e.getMessage());
 	}
 
