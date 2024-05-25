@@ -16,10 +16,12 @@ import com.example.terabackendtest.repository.CpuUsageRepository;
 public class CpuUsageService {
 
 	private static final int ONE_MINUTE = 60_000;
+	private final TimeValidator timeValidator;
 	private final CpuUsageRepository cpuUsageRepository;
 	private final CpuUsageCollector cpuUsageCollector;
 
-	public CpuUsageService(final CpuUsageRepository cpuUsageRepository, final CpuUsageCollector cpuUsageCollector) {
+	public CpuUsageService(final TimeValidator timeValidator, final CpuUsageRepository cpuUsageRepository, final CpuUsageCollector cpuUsageCollector) {
+		this.timeValidator = timeValidator;
 		this.cpuUsageRepository = cpuUsageRepository;
 		this.cpuUsageCollector = cpuUsageCollector;
 	}
@@ -32,6 +34,16 @@ public class CpuUsageService {
 
 	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsageBetween(final LocalDateTime startTime, final LocalDateTime endTime) {
-		return cpuUsageRepository.findCpuUsageBetween(startTime, endTime);
+		return cpuUsageRepository.findCpuUsageBetween(startTime, endTime).stream()
+			.map(CpuDto::from)
+			.toList();
+	}
+
+	public List<CpuDto> cpuUsagePerHour(final LocalDate date) {
+		final LocalDateTime startTime = timeValidator.startTimeForCpuUsagePerHour(date);
+
+		return cpuUsageRepository.findCpuUsagesForDay(startTime, startTime.plusDays(1)).stream()
+			.map(CpuDto::from)
+			.toList();
 	}
 }
