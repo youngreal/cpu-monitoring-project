@@ -1,12 +1,15 @@
 package com.example.terabackendtest.service;
 
 import static com.example.terabackendtest.source.TestTimeSource.TEMPORARY_CPU_USAGE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.terabackendtest.domain.CpuUsage;
+import com.example.terabackendtest.dto.CpuDto;
 import com.example.terabackendtest.repository.CpuUsageRepository;
+import com.example.terabackendtest.repository.dto.CpuDtoForPerDaily;
+import com.example.terabackendtest.repository.dto.CpuDtoForPerHour;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -53,10 +59,10 @@ class CpuUsageServiceTest {
 		final LocalDateTime endTime = LocalDateTime.of(2024, 5, 22, 8, 0);
 
 		//when
-		sut.cpuUsageBetween(startTime, endTime);
+		sut.cpuUsagePerMinute(startTime, endTime);
 
 		// then
-		then(cpuUsageRepository).should().findCpuUsageBetween(startTime, endTime);
+		then(cpuUsageRepository).should().findCpuUsagesPerMinute(startTime, endTime);
 	}
 
 	@Test
@@ -64,12 +70,42 @@ class CpuUsageServiceTest {
 		// given
 		final LocalDate input = LocalDate.of(2024, 3, 25);
 		final LocalDateTime startTime = LocalDateTime.of(2024, 3, 25, 0, 0);
-		given(timeValidator.startTimeForCpuUsagePerHour(input)).willReturn(startTime);
+		final List<CpuDtoForPerHour> mockCpuUsages = List.of(
+			CpuDtoForPerHour.of(10, 20, 40.0, 5),
+			CpuDtoForPerHour.of(40, 50, 70.0, 6)
+		);
+		final List<CpuDto> expectedDtos = mockCpuUsages.stream()
+			.map(CpuDto::from)
+			.toList();
+		given(cpuUsageRepository.findCpuUsagesPerHour(startTime, startTime.plusDays(1))).willReturn(mockCpuUsages);
 
 		//when
-		sut.cpuUsagePerHour(input);
+		final List<CpuDto> result = sut.cpuUsagePerHour(input);
 
 		// then
-		then(cpuUsageRepository).should().findCpuUsagesForDay(startTime, startTime.plusDays(1));
+		then(cpuUsageRepository).should().findCpuUsagesPerHour(startTime, startTime.plusDays(1));
+		assertThat(result).usingRecursiveComparison().isEqualTo(expectedDtos);
+	}
+
+	@Test
+	void 일_단위의_CPU_사용률을_조회한다() {
+		// given
+		final LocalDate startDate = LocalDate.of(2024, 3, 25);
+		final LocalDate endDate = LocalDate.of(2024, 5, 22);
+		final List<CpuDtoForPerDaily> mockCpuUsages = List.of(
+			CpuDtoForPerDaily.of(10, 20, 40.0, 5),
+			CpuDtoForPerDaily.of(40, 50, 70.0, 6)
+		);
+		final List<CpuDto> expectedDtos = mockCpuUsages.stream()
+			.map(CpuDto::from)
+			.toList();
+		given(cpuUsageRepository.findCpuUsagesPerDaily(startDate.atStartOfDay(), endDate.atStartOfDay())).willReturn(mockCpuUsages);
+
+		// when
+		final List<CpuDto> result = sut.cpuUsagePerDaily(startDate, endDate);
+
+		// then
+		then(cpuUsageRepository).should().findCpuUsagesPerDaily(startDate.atStartOfDay(), endDate.atStartOfDay());
+		assertThat(result).usingRecursiveComparison().isEqualTo(expectedDtos);
 	}
 }

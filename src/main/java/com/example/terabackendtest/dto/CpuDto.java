@@ -2,6 +2,7 @@ package com.example.terabackendtest.dto;
 
 import java.time.LocalDateTime;
 
+import com.example.terabackendtest.repository.dto.CpuDtoForPerDaily;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerHour;
 import com.example.terabackendtest.repository.dto.CpuDtoForPerMinute;
 
@@ -14,7 +15,8 @@ public record CpuDto(
 	int minCpuUsage,
 	int maxCpuUsage,
 	double averageCpuUsage,
-	int hour
+	int hour,
+	int day
 ) {
 
 	public static CpuDto of(final int usagePercent, final LocalDateTime timestamp) {
@@ -37,6 +39,15 @@ public record CpuDto(
 		return CpuDto.builder()
 			.usagePercent(cpuDtoForPerMinute.usagePercent())
 			.timestamp(cpuDtoForPerMinute.timestamp())
+			.build();
+	}
+
+	public static CpuDto from(final CpuDtoForPerDaily cpuDtoForPerDaily) {
+		return CpuDto.builder()
+			.minCpuUsage(cpuDtoForPerDaily.minCpuUsage())
+			.maxCpuUsage(cpuDtoForPerDaily.maxCpuUsage())
+			.averageCpuUsage(cpuDtoForPerDaily.averageCpuUsage())
+			.day(cpuDtoForPerDaily.day())
 			.build();
 	}
 }
