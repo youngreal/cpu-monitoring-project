@@ -19,13 +19,6 @@ public record CpuDto(
 	int day
 ) {
 
-	public static CpuDto of(final int usagePercent, final LocalDateTime timestamp) {
-		return CpuDto.builder()
-			.usagePercent(usagePercent)
-			.timestamp(timestamp)
-			.build();
-	}
-
 	public static CpuDto from(final CpuDtoForPerHour cpuDtoForPerHour) {
 		return CpuDto.builder()
 			.minCpuUsage(cpuDtoForPerHour.minCpuUsage())

@@ -1,7 +1,6 @@
 package com.example.terabackendtest.repository;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 import com.example.terabackendtest.repository.dto.CpuDtoForPerDaily;
