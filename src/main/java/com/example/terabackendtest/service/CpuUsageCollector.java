@@ -1,8 +1,5 @@
 package com.example.terabackendtest.service;
 
-import java.lang.management.ManagementFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.terabackendtest.exception.CpuUsageCollectFailException;
