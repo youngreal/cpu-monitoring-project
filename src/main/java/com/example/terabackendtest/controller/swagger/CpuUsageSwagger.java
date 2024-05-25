@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.terabackendtest.controller.dto.CpuUsagePerDailyResponse;
 import com.example.terabackendtest.controller.dto.CpuUsagePerHourResponse;
 import com.example.terabackendtest.controller.dto.CpuUsageResponse;
-import com.example.terabackendtest.controller.validation.CheckEndTime;
-import com.example.terabackendtest.controller.validation.CheckStartTime;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,10 +30,10 @@ public interface CpuUsageSwagger {
 			content = {@Content(schema = @Schema(example = "{잘못된 입력형식 입니다}"))})
 	})
 	List<CpuUsageResponse> cpuUsages(
-		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @CheckStartTime
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 		@Parameter(description = "시작 시간, ISO DateTime(yyyy-MM-ddTHH:MM:SS) 형식으로 입력")
 		final LocalDateTime startTime,
-		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @CheckEndTime
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 		@Parameter(description = "끝 시간, ISO DateTime(yyyy-MM-ddTHH:MM:SS) 형식으로 입력")
 		final LocalDateTime endTime
 	);

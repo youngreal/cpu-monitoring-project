@@ -34,11 +34,14 @@ public class CpuUsageService {
 
 	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsagePerMinute(final LocalDateTime startTime, final LocalDateTime endTime) {
+		timeValidator.validateDateRangeForPerMinute(startTime, endTime);
+
 		return cpuUsageRepository.findCpuUsagesPerMinute(startTime, endTime).stream()
 			.map(CpuDto::from)
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsagePerHour(final LocalDate date) {
 		// validation
 		timeValidator.validateDateRangeForPerHour(date);
@@ -49,6 +52,7 @@ public class CpuUsageService {
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsagePerDaily(final LocalDate startDate, final LocalDate endDate) {
 		// validation
 		timeValidator.validateDateRangeForPerDaily(startDate, endDate);

@@ -8,26 +8,13 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.example.terabackendtest.exception.CpuUsageCollectFailException;
 import com.example.terabackendtest.exception.InvalidDateRangeException;
+import com.example.terabackendtest.exception.InvalidDateTimeRangeException;
 import com.example.terabackendtest.exception.StartTimeAfterEndTimeException;
 
 import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<String> constraintViolationException() {
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST)
-			.body("잘못된 입력값 입니다");
-	}
-
-	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public ResponseEntity<String> methodArgumentTypeMismatchException() {
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST)
-			.body("잘못된 입력형식 입니다");
-	}
 
 	@ExceptionHandler(StartTimeAfterEndTimeException.class)
 	public ResponseEntity<String> startTimeAfterEndTimeException(StartTimeAfterEndTimeException e) {
@@ -48,6 +35,27 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(e.getMessage());
+	}
+
+	@ExceptionHandler(InvalidDateTimeRangeException.class)
+	public ResponseEntity<String> invalidDateTimeRangeException(InvalidDateTimeRangeException e) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(e.getMessage());
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<String> constraintViolationException() {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body("잘못된 입력값 입니다");
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<String> methodArgumentTypeMismatchException() {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body("잘못된 입력형식 입니다");
 	}
 
 	@ExceptionHandler(RuntimeException.class)
