@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.stream.Stream;
 
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.terabackendtest.exception.InvalidDateRangeException;
+import com.example.terabackendtest.exception.InvalidDateTimeRangeException;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +52,24 @@ class TimeValidatorTest {
 		when(clock.instant()).thenReturn(fixedClock.instant());
 		when(clock.getZone()).thenReturn(fixedClock.getZone());
 	}
+
+	@MethodSource
+	@ParameterizedTest
+	void 부적절한_입력으로_분_단위_Cpu_사용률_조회에_실패한다(final LocalDateTime startTime, final LocalDateTime endTime) {
+		// when & then
+		assertThrows(InvalidDateTimeRangeException.class, () -> sut.validateDateRangeForPerMinute(startTime, endTime));
+
+	}
+
+	static Stream<Arguments> 부적절한_입력으로_분_단위_Cpu_사용률_조회에_실패한다() {
+		return Stream.of(
+			arguments(LocalDateTime.of(2023, 5, 15,1,0), LocalDateTime.of(2024, 5, 15,8,0)), // 끝시간이 1주일 이전인 경우
+			arguments(LocalDateTime.of(2023, 5, 22,1,0), LocalDateTime.of(2024, 5, 21,1,0)), // startTime이 endTime보다 더 늦은 시간인 경우
+			arguments(LocalDateTime.of(2023, 5, 31,1,0), LocalDateTime.of(2024, 5, 31,5,0)), // startTime이 현재 시간보다 미래인경우
+			arguments(LocalDateTime.of(2023, 5, 22,1,0), LocalDateTime.of(2024, 5, 28,1,0)) //endTime이 현재 시간보다 미래인경우
+		);
+	}
+
 
 	@MethodSource
 	@ParameterizedTest

@@ -8,6 +8,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.example.terabackendtest.exception.CpuUsageCollectFailException;
 import com.example.terabackendtest.exception.InvalidDateRangeException;
+import com.example.terabackendtest.exception.InvalidDateTimeRangeException;
 import com.example.terabackendtest.exception.StartTimeAfterEndTimeException;
 
 import jakarta.validation.ConstraintViolationException;
@@ -31,6 +32,13 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(InvalidDateRangeException.class)
 	public ResponseEntity<String> invalidDateRangeException(InvalidDateRangeException e) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(e.getMessage());
+	}
+
+	@ExceptionHandler(InvalidDateTimeRangeException.class)
+	public ResponseEntity<String> invalidDateTimeRangeException(InvalidDateTimeRangeException e) {
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(e.getMessage());

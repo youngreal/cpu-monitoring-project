@@ -102,27 +102,6 @@ class CpuUsageControllerTest {
 
 	@MethodSource
 	@ParameterizedTest
-	void 부적절한_입력으로_Cpu_사용률_조회에_실패한다(final String startTime, final String endTime) throws Exception {
-		// when & then
-		mockMvc.perform(get(CPU_USAGE_PER_MINUTE_URL)
-				.param("startTime", startTime)
-				.param("endTime", endTime)
-			)
-			.andDo(print())
-			.andExpect(status().isBadRequest());
-	}
-
-	static Stream<Arguments> 부적절한_입력으로_Cpu_사용률_조회에_실패한다() {
-		return Stream.of(
-			arguments("2024-05-15T01:00", "2024-05-15T08:00"), // 끝시간이 1주일 이전인 경우
-			arguments("2024-05-22T01:00", "2024-05-21T01:00"), // startTime이 endTime보다 더 늦은 시간인 경우
-			arguments("2024-05-31T01:00","2024-05-31T05:00"), // startTime이 현재 시간보다 미래인경우
-			arguments("2024-05-22T01:00","2024-05-28T01:00") //endTime이 현재 시간보다 미래인경우
-		);
-	}
-
-	@MethodSource
-	@ParameterizedTest
 	void 입력_날짜_형식이_잘못되면_분_단위_조회에_실패한다(final String startTime, final String endTime) throws Exception {
 		// when & then
 		mockMvc.perform(get(CPU_USAGE_PER_MINUTE_URL)
