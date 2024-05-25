@@ -1,6 +1,5 @@
 package com.example.terabackendtest.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
@@ -8,8 +7,6 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.stream.Stream;
 
@@ -25,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.terabackendtest.exception.InvalidDateRangeException;
+
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class TimeValidatorTest {
@@ -57,7 +55,7 @@ class TimeValidatorTest {
 	@ParameterizedTest
 	void 부적절한_입력으로_시_단위_Cpu_사용률_조회에_실패한다(final LocalDate input) {
 		// when & then
-		assertThrows(InvalidDateRangeException.class, () -> sut.startTimeForCpuUsagePerHour(input));
+		assertThrows(InvalidDateRangeException.class, () -> sut.validateDateRangeForPerHour(input));
 	}
 
 	static Stream<Arguments> 부적절한_입력으로_시_단위_Cpu_사용률_조회에_실패한다() {
@@ -69,18 +67,17 @@ class TimeValidatorTest {
 
 	@MethodSource
 	@ParameterizedTest
-	void 입력_날짜의_시작_날짜를_반환한다(final LocalDate input) {
-		// when
-		final LocalDateTime result = sut.startTimeForCpuUsagePerHour(input);
-
-		// then
-		assertThat(result).isEqualTo(LocalDateTime.of(input,LocalTime.MIDNIGHT));
+	void 부적절한_입력으로_일_단위_Cpu_사용률_조회에_실패한다(final LocalDate startTime, final LocalDate endTime) {
+		// when & then
+		assertThrows(InvalidDateRangeException.class, () -> sut.validateDateRangeForPerDaily(startTime, endTime));
 	}
 
-	static Stream<Arguments> 입력_날짜의_시작_날짜를_반환한다() {
+	static Stream<Arguments> 부적절한_입력으로_일_단위_Cpu_사용률_조회에_실패한다() {
 		return Stream.of(
-			arguments(LocalDate.of(2024, 2, 25)),
-			arguments(LocalDate.of(2024, 5, 20))
+			arguments(LocalDate.of(2023, 5, 22), LocalDate.of(2024, 5, 23)), // 시작 시간이 1년보다 오래된경우
+			arguments(LocalDate.of(2024, 5, 25), LocalDate.of(2024, 5, 25)), // 시작 시간이 현재시간보다 미래인경우
+			arguments(LocalDate.of(2024, 5, 22), LocalDate.of(2024, 6, 22)), // 끝 시간이 현재시간보다 미래인경우
+			arguments(LocalDate.of(2024, 5, 20), LocalDate.of(2024, 5, 18)) // 시작 시간이 끝시간보다 미래인경우
 		);
 	}
 }

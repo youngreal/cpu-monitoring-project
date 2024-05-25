@@ -3,3 +3,6 @@ GET http://localhost:8080/cpu-usages/minute?startTime=2024-05-19T22:20&endTime=2
 
 ### 시 단위 CPU 사용률 조회
 GET http://localhost:8080/cpu-usages/hourly?date=2024-05-24
+
+### 일 단위 CPU 사용률 조회
+GET http://localhost:8080/cpu-usages/daily?startDate=2024-05-19&endDate=2024-05-25

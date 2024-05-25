@@ -40,6 +40,7 @@ class CpuUsageControllerTest {
 
 	private static final String CPU_USAGE_PER_MINUTE_URL = "/cpu-usages/minute";
 	private static final String CPU_USAGE_PER_HOUR_URL = "/cpu-usages/hourly";
+	private static final String CPU_USAGE_PER_DAY_URL = "/cpu-usages/daily";
 	/**
 	 * 테스트용 현재 시간을 위해 2024.05.22T15:00:00Z로 시간고정
 	 * UTC 시간차이로 인해 9시간 느리게 적용됩니다(실제 프로덕션 코드에서 적용되는 LocalDateTime 기준으로 해당값은 2024.05.23T00:00:00로 적용됩니다)
@@ -181,6 +182,46 @@ class CpuUsageControllerTest {
 			arguments(" "),
 			arguments("??asdsadsd"),
 			arguments("2024.05.28")
+		);
+	}
+
+	@Test
+	void 일_단위_Cpu_사용률을_조회한다() throws Exception {
+		// when & then
+		mockMvc.perform(get(CPU_USAGE_PER_DAY_URL)
+				.param("startDate", "2024-05-20")
+				.param("endDate", "2024-05-23")
+			)
+			.andDo(print())
+			.andExpect(jsonPath("$.[0].day").value(20))
+			.andExpect(jsonPath("$.[0].minCpuUsage").value(10))
+			.andExpect(jsonPath("$.[0].maxCpuUsage").value(60))
+			.andExpect(jsonPath("$.[0].averageCpuUsage").value(35.0))
+			.andExpect(status().isOk());
+	}
+
+	@MethodSource
+	@ParameterizedTest
+	void 입력_날짜_형식이_잘못되면_일_단위_조회에_실패한다(final String startDate, final String endDate) throws Exception {
+		// when & then
+		mockMvc.perform(get(CPU_USAGE_PER_HOUR_URL)
+				.param("startDate", startDate)
+				.param("endDate", endDate)
+			)
+			.andDo(print())
+			.andExpect(status().isBadRequest());
+	}
+
+	static Stream<Arguments> 입력_날짜_형식이_잘못되면_일_단위_조회에_실패한다() {
+		return Stream.of(
+			arguments("", "2024-05-15T08:00"),
+			arguments(" ", "2024-05-21T01:00"),
+			arguments("??asdsadsd","2024-05-31T05:00"),
+			arguments("2024.05.28","2024-05-28T01:00"),
+			arguments("2024-05-15T08:00", ""),
+			arguments("2024-05-21T01:00", " "),
+			arguments("2024-05-31T05:00", "??asdsadsd"),
+			arguments("2024-05-28T01:00", "2024.05.28")
 		);
 	}
 }
