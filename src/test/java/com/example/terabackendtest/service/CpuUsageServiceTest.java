@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -31,6 +31,9 @@ class CpuUsageServiceTest {
 	@Mock
 	private CpuUsageCollector cpuUsageCollector;
 
+	@Mock
+	private TimeValidator timeValidator;
+
 	@Test
 	void CPU_사용률을_수집후_저장한다() {
 		// given
@@ -54,5 +57,19 @@ class CpuUsageServiceTest {
 
 		// then
 		then(cpuUsageRepository).should().findCpuUsageBetween(startTime, endTime);
+	}
+
+	@Test
+	void 시_단위의_CPU_사용률을_조회한다() {
+		// given
+		final LocalDate input = LocalDate.of(2024, 3, 25);
+		final LocalDateTime startTime = LocalDateTime.of(2024, 3, 25, 0, 0);
+		given(timeValidator.startTimeForCpuUsagePerHour(input)).willReturn(startTime);
+
+		//when
+		sut.cpuUsagePerHour(input);
+
+		// then
+		then(cpuUsageRepository).should().findCpuUsagesForDay(startTime, startTime.plusDays(1));
 	}
 }
