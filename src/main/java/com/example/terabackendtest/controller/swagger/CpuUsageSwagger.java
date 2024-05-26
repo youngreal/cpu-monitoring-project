@@ -14,6 +14,7 @@ import com.example.terabackendtest.controller.dto.CpuUsageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,10 +25,15 @@ public interface CpuUsageSwagger {
 	@Operation(summary = "분 단위 CPU 사용률을 조회한다.",
 	responses = {
 		@ApiResponse(responseCode = "200", description = "정상적으로 분 단위 CPU 사용률 조회"),
-		@ApiResponse(responseCode = "400", description = "입력날짜 형식이 잘못된 경우 발생",
-		content = {@Content(schema = @Schema(example = "{잘못된 입력값 입니다}"))}),
-		@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증 실패 시  발생",
-			content = {@Content(schema = @Schema(example = "{잘못된 입력형식 입니다}"))})
+		@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증에 실패했거나, 형식이 어긋난 경우 ",
+			content = {
+				@Content(mediaType = "application/json",
+					examples = {
+						@ExampleObject(name = "MethodArgumentTypeMismatchException", value = "{\"message\": \"잘못된 입력형식 입니다\"}"),
+						@ExampleObject(name = "InvalidDateTimeRangeException", value = "{\"message\": \"%s is invalid datetime range\"}"),
+						@ExampleObject(name = "StartTimeAfterEndTimeException", value = "{\"message\": \"start time cannot exceed the end time\"}")
+					})
+			})
 	})
 	List<CpuUsageResponse> cpuUsages(
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -41,10 +47,14 @@ public interface CpuUsageSwagger {
 	@Operation(summary = "시 단위 CPU 사용률을 조회한다.",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "정상적으로 시 단위 CPU 사용률 조회"),
-			@ApiResponse(responseCode = "400", description = "입력날짜 형식이 잘못된 경우 발생",
-				content = {@Content(schema = @Schema(example = "{잘못된 입력값 입니다}"))}),
-			@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증 실패 시  발생",
-				content = {@Content(schema = @Schema(example = "{잘못된 입력형식 입니다}"))})
+			@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증에 실패했거나, 형식이 어긋난 경우 ",
+				content = {
+					@Content(mediaType = "application/json",
+						examples = {
+							@ExampleObject(name = "MethodArgumentTypeMismatchException", value = "{\"message\": \"잘못된 입력형식 입니다\"}"),
+							@ExampleObject(name = "InvalidDateRangeException", value = "{\"message\": \"%s is invalid date range\"}")
+						})
+				})
 		})
 	List<CpuUsagePerHourResponse> cpuUsagesForHourly(
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -54,11 +64,15 @@ public interface CpuUsageSwagger {
 
 	@Operation(summary = "일 단위 CPU 사용률을 조회한다.",
 		responses = {
-			@ApiResponse(responseCode = "200", description = "정상적으로 분 단위 CPU 사용률 조회"),
-			@ApiResponse(responseCode = "400", description = "입력날짜 형식이 잘못된 경우 발생",
-				content = {@Content(schema = @Schema(example = "{잘못된 입력값 입니다}"))}),
-			@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증 실패 시  발생",
-				content = {@Content(schema = @Schema(example = "{잘못된 입력형식 입니다}"))})
+			@ApiResponse(responseCode = "200", description = "정상적으로 일 단위 CPU 사용률 조회"),
+			@ApiResponse(responseCode = "400", description = "입력날짜의 범위 검증에 실패했거나, 형식이 어긋난 경우 ",
+				content = {
+					@Content(mediaType = "application/json",
+						examples = {
+							@ExampleObject(name = "MethodArgumentTypeMismatchException", value = "{\"message\": \"잘못된 입력형식 입니다\"}"),
+							@ExampleObject(name = "InvalidDateRangeException", value = "{\"message\": \"%s is invalid date range\"}")
+						})
+				})
 		})
 	List<CpuUsagePerDailyResponse> cpuUsagesForDaily(
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
