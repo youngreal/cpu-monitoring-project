@@ -46,6 +46,7 @@ flush privileges;
 
 ### 예외 처리 
 - @RestControllerAdvice로 전체적인 에러 핸들링 진행 
+  - 프론트엔드와 공통 응답 형식이 정해지면 공통 응답 개선 필요
 
 **파라미터 검증 관련**
 - 초반에는 파라미터에 사용할 Custom Validation @StartTime, @EndTime을 정의 하여 입력값의 범위를 검증했습니다. [관련 커밋](https://github.com/youngreal/cpu-monitoring-project/commit/156c2fca39e338e0218c3e396accf789e55ee404)
