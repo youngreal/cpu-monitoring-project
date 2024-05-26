@@ -26,6 +26,8 @@ public class CpuUsageService {
 		this.cpuUsageCollector = cpuUsageCollector;
 	}
 
+	//todo 해당 메서드의 위치를 고민해 봐야한다.
+	@Transactional
 	@Scheduled(fixedDelay = ONE_MINUTE)
 	public void saveCpuUsage() {
 		final int cpuUsagePercent = cpuUsageCollector.usagePercent();
@@ -43,7 +45,6 @@ public class CpuUsageService {
 
 	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsagePerHour(final LocalDate date) {
-		// validation
 		timeValidator.validateDateRangeForPerHour(date);
 
 		final LocalDateTime startTime = date.atStartOfDay();
@@ -54,7 +55,6 @@ public class CpuUsageService {
 
 	@Transactional(readOnly = true)
 	public List<CpuDto> cpuUsagePerDaily(final LocalDate startDate, final LocalDate endDate) {
-		// validation
 		timeValidator.validateDateRangeForPerDaily(startDate, endDate);
 
 		return cpuUsageRepository.findCpuUsagesPerDaily(startDate.atStartOfDay(), endDate.atStartOfDay()).stream()
