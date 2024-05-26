@@ -44,6 +44,36 @@ flush privileges;
 - OperatingSystemMXBean는 Oracle에서 만든 Native class를 내부적으로 활용하기때문에 JVM버전에 따라 호환문제가 발생할 수 있습니다.
 
 
+###  분, 시, 일 단위 API
+- 애플리케이션에선 querydsl로 처리하였으며, 각각 아래 쿼리가 발생합니다.
+  
+분 단위API
+```sql
+# startDateTime = 2024-05-20T22:20 , endDateTime = 2024-05-26T18:51 입력 시 
+SELECT usage_percent, timestamp
+FROM cpu_usage c
+WHERE c.timestamp BETWEEN '2024-05-20T22:20' AND '2024-05-26T18:51';
+```
+
+시 단위API
+```sql
+# startDateTime = 2024-05-20T22:20 , endDateTime = 2024-05-26T18:51 입력 시 
+SELECT MIN(c.usage_percent), MAX(c.usage_percent), AVG(c.usage_percent), HOUR(c.timestamp)
+FROM cpu_usage c
+WHERE c.timestamp BETWEEN '2024-05-20T22:20' AND '2024-05-26T18:51
+GROUP BY HOUR(c.timestamp);
+```
+
+일 단위API
+```sql
+# startDateTime = 2024-05-20T22:20 , endDateTime = 2024-05-26T18:51 입력 시 
+SELECT MIN(c.usage_percent), MAX(c.usage_percent), AVG(c.usage_percent), extract(day FROM c.timestamp)
+FROM cpu_usage c
+WHERE c.timestamp BETWEEN '2024-05-20T22:20' AND '2024-05-26T18:51
+GROUP BY extract(day FROM c.timestamp);
+```
+
+
 ### 예외 처리 
 - @RestControllerAdvice로 전체적인 에러 핸들링 진행 
   - 프론트엔드와 공통 응답 형식이 정해지면 공통 응답 개선 필요
@@ -53,7 +83,9 @@ flush privileges;
   
 - 그러나, 기능이 추가되면서 Controller layer에서는 값의 형식만 검증하는 방식으로 리팩토링했고 **아래의 이유로 해당 검증을 Service layer로 이동**시켰습니다
   - API마다 다른 검증조건들을 가질때마다 어노테이션과 Validator 클래스가 추가된다.
+    
   - 중복되는 코드가 있으며 이 **코드를 재사용하기 힘들어진다**.
+    
   - Controller에서 처리해도 나름의 장점이있지만, **데이터 제공 기한이 변경된다면 controller layer를 변경하는게 맞을까?** 에 대한 고민을 거친결과 이동하기로 결정
     
 - service layer에 존재하는 TimeValidator로 해당 검증내용 이동 
@@ -95,7 +127,7 @@ public class CpuUsageCollector {
 
 
 ## 추가로 고민/개선 한 점 
-- DateTime에 인덱스 설정에 관해
+- DateTime에 **인덱스** 설정에 관해
   1. 프로젝트가 1년간 지속된다는 가정하에 분당 하나의 로우가 추가된다면 일년에 525,600개의 로우가 축적 
   2. 이 상황에서 만약 분 단위 API를 호출해 between 쿼리로 특정 날짜의 1주간의 데이터(최대 10080개, 대략 2%)를 호출하게 된다면 50만개의 로우의 full table scan이 발생함
   3. full table scan이 느려지는 로우 수를 체크하여 인덱스를 고려할 필요 있음
@@ -103,7 +135,9 @@ public class CpuUsageCollector {
 - Controller에 침투되는 Swagger 코드를 걷어내기 위해 Swagger인터페이스 적용
   -  Controller의 가독성을 고려하여 도입  [관련 코드](https://github.com/youngreal/cpu-monitoring-project/blob/main/src/main/java/com/example/terabackendtest/controller/swagger/CpuUsageSwagger.java) 
 
-- 응집도와 유지보수성을 고려해 양방향 패키지 참조를 지양하고 단방향으로 구현
+- 응집도와 유지보수성을 고려해 **양방향 패키지 참조를 지양**하고 단방향으로 구현
+
+
 
 
 ## API 명세 
